@@ -1,0 +1,261 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>nelderMead</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-17"><meta name="DC.source" content="nelderMead.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Nelder and Mead Method</a></li><li><a href="#3">Plot Result</a></li></ul></div><h2>Nelder and Mead Method<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [output, time, iter] = nelderMead(f, dim, range, epsilon, max_iter, alpha, beta, gamma)
+</pre><pre class="codeinput">tic;
+plot_vertex = [];
+
+<span class="comment">% generate N+1 vertices in N-dimensional space</span>
+vertex = -range + (range + range) * rand(dim+1, dim);
+
+<span class="keyword">for</span> iter=1:max_iter
+    <span class="comment">% when reach to end of loop, evoke error</span>
+    <span class="keyword">if</span> (iter == max_iter)
+        error(<span class="string">'max_iter - optimization failed!'</span>);
+    <span class="keyword">end</span>;
+
+    <span class="comment">% sort function evaluation along ascending order</span>
+    [sorted_value, sorted_index] = sort(double(f(vertex(:, 1), vertex(:, 2))));
+
+    <span class="comment">% keep vertex value for plot</span>
+    <span class="keyword">if</span>(mod(iter, 2) == 0)
+        plot_vertex = [plot_vertex; vertex];
+    <span class="keyword">end</span>;
+
+    <span class="comment">% termination condition - the average of vertex distance &lt;= epsilon</span>
+    distance = mean(pdist(vertex, <span class="string">'euclidean'</span>));
+    <span class="keyword">if</span> (distance &lt;= epsilon)
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>;
+
+    <span class="comment">% rearange vertex</span>
+    vertex = vertex(sorted_index, :);
+
+    <span class="comment">% mean of X1, ... ,Xn</span>
+    c = [];
+    <span class="keyword">for</span> i=1:dim
+        c = [c, mean(vertex(1:end-1, i))];
+    <span class="keyword">end</span>;
+
+    x_nplus1 = vertex(end, :);
+    x_r = c + (alpha * (c - x_nplus1));
+    f_r = double(f(x_r(1), x_r(2)));
+
+    <span class="keyword">if</span> (sorted_value(1) &lt;= f_r) &amp;&amp; (f_r &lt;= sorted_value(end-1))
+        <span class="comment">% reflection step</span>
+        vertex(end, :) = x_r;
+        <span class="keyword">continue</span>;
+    <span class="keyword">elseif</span> (sorted_value(end-1) &lt;= f_r)
+        <span class="comment">% contraction step</span>
+        <span class="keyword">if</span> (f_r &lt; sorted_value(end))
+            x_c = c + (gamma *(x_r - c));
+        <span class="keyword">else</span>
+            x_c = c + (gamma * (x_nplus1 - c));
+        <span class="keyword">end</span>;
+
+        f_c = double(f(x_c(1), x_c(2)));
+
+        <span class="keyword">if</span> (f_c &lt; min([f_r, f(x_nplus1(1), x_nplus1(2))]))
+            x_nplus1 = x_c;
+            vertex(end, :) = x_nplus1;
+        <span class="keyword">else</span>
+            <span class="keyword">for</span> i=2:dim+1
+                vertex(i, :) = (vertex(i, :) + vertex(1, :)) / 2;
+            <span class="keyword">end</span>;
+        <span class="keyword">end</span>;
+    <span class="keyword">elseif</span> (f_r &lt;= sorted_value(1))
+        <span class="comment">% expansion step</span>
+        x_e = c + (beta * (x_r - c));
+        f_e = double(f(x_e(1), x_e(2)));
+
+        <span class="keyword">if</span> (f_e &lt;= f_r)
+            vertex(end, :) = x_e;
+        <span class="keyword">else</span>
+            vertex(end, :) = x_r;
+        <span class="keyword">end</span>;
+    <span class="keyword">end</span>;
+<span class="keyword">end</span>;
+
+output = sorted_value(1);
+time = toc;
+</pre><h2>Plot Result<a name="3"></a></h2><pre class="codeinput">figure;
+x = -10:0.2:10;
+y = -10:0.2:10;
+[X, Y] = meshgrid(x, y);
+contour(X, Y, f(X, Y), <span class="string">'ShowText'</span>, <span class="string">'on'</span>);
+hold <span class="string">on</span>;
+
+<span class="keyword">for</span> i=1:size(plot_vertex, 1) / 3
+    rand_color = rand(1, 3);
+    line(plot_vertex(3*i-2:3*i , 1), plot_vertex(3*i-2:3*i, 2), f(plot_vertex(3*i-2:3*i , 1), plot_vertex(3*i-2:3*i, 2)), <span class="string">'Color'</span>, rand_color, <span class="string">'LineWidth'</span>, 1.5);
+    hold <span class="string">on</span>;
+    line(plot_vertex([3*i, 3*i-2] , 1), plot_vertex([3*i, 3*i-2], 2), f(plot_vertex([3*i, 3*i-2] , 1), plot_vertex([3*i, 3*i-2], 2)), <span class="string">'Color'</span>, rand_color, <span class="string">'LineWidth'</span>, 1.5);
+    hold <span class="string">on</span>;
+<span class="keyword">end</span>;
+title(<span class="string">'Nelder and Mead'</span>);
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Nelder and Mead Method
+function [output, time, iter] = nelderMead(f, dim, range, epsilon, max_iter, alpha, beta, gamma)
+
+tic;
+plot_vertex = [];
+
+% generate N+1 vertices in N-dimensional space
+vertex = -range + (range + range) * rand(dim+1, dim);
+
+for iter=1:max_iter
+    % when reach to end of loop, evoke error
+    if (iter == max_iter)
+        error('max_iter - optimization failed!');
+    end;
+    
+    % sort function evaluation along ascending order
+    [sorted_value, sorted_index] = sort(double(f(vertex(:, 1), vertex(:, 2))));
+    
+    % keep vertex value for plot
+    if(mod(iter, 2) == 0)
+        plot_vertex = [plot_vertex; vertex];
+    end;
+    
+    % termination condition - the average of vertex distance <= epsilon
+    distance = mean(pdist(vertex, 'euclidean'));
+    if (distance <= epsilon)
+        break;
+    end;
+    
+    % rearange vertex
+    vertex = vertex(sorted_index, :);
+
+    % mean of X1, ... ,Xn
+    c = [];
+    for i=1:dim
+        c = [c, mean(vertex(1:end-1, i))];
+    end;
+
+    x_nplus1 = vertex(end, :);
+    x_r = c + (alpha * (c - x_nplus1));
+    f_r = double(f(x_r(1), x_r(2)));
+
+    if (sorted_value(1) <= f_r) && (f_r <= sorted_value(end-1))
+        % reflection step
+        vertex(end, :) = x_r;
+        continue;
+    elseif (sorted_value(end-1) <= f_r)
+        % contraction step
+        if (f_r < sorted_value(end))
+            x_c = c + (gamma *(x_r - c));
+        else
+            x_c = c + (gamma * (x_nplus1 - c));
+        end;
+
+        f_c = double(f(x_c(1), x_c(2)));
+
+        if (f_c < min([f_r, f(x_nplus1(1), x_nplus1(2))]))
+            x_nplus1 = x_c;
+            vertex(end, :) = x_nplus1;
+        else
+            for i=2:dim+1
+                vertex(i, :) = (vertex(i, :) + vertex(1, :)) / 2;
+            end;
+        end;
+    elseif (f_r <= sorted_value(1))
+        % expansion step
+        x_e = c + (beta * (x_r - c));
+        f_e = double(f(x_e(1), x_e(2)));
+        
+        if (f_e <= f_r)
+            vertex(end, :) = x_e;
+        else
+            vertex(end, :) = x_r;
+        end;
+    end;
+end;
+
+output = sorted_value(1);
+time = toc;
+
+%% Plot Result
+figure;
+x = -10:0.2:10;
+y = -10:0.2:10;
+[X, Y] = meshgrid(x, y);
+contour(X, Y, f(X, Y), 'ShowText', 'on');
+hold on;
+
+for i=1:size(plot_vertex, 1) / 3
+    rand_color = rand(1, 3);
+    line(plot_vertex(3*i-2:3*i , 1), plot_vertex(3*i-2:3*i, 2), f(plot_vertex(3*i-2:3*i , 1), plot_vertex(3*i-2:3*i, 2)), 'Color', rand_color, 'LineWidth', 1.5);
+    hold on;
+    line(plot_vertex([3*i, 3*i-2] , 1), plot_vertex([3*i, 3*i-2], 2), f(plot_vertex([3*i, 3*i-2] , 1), plot_vertex([3*i, 3*i-2], 2)), 'Color', rand_color, 'LineWidth', 1.5);
+    hold on;
+end;
+title('Nelder and Mead');
+
+##### SOURCE END #####
+--></body></html>

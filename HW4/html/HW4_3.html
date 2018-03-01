@@ -1,0 +1,140 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>HW4_3</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-17"><meta name="DC.source" content="HW4_3.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#2">Problem 3 - find minima f(x, y) = 100 * (y - x^2)^2 + 3 * (1 - x)^2</a></li></ul></div><pre class="codeinput"><span class="comment">% 2017 Fall Numerical Optimization Homework #4</span>
+<span class="comment">% 2017. 10. 18</span>
+<span class="comment">% 20161216 HAN SANGJUN</span>
+
+clc;
+clear;
+close <span class="string">all</span>;
+</pre><h2>Problem 3 - find minima f(x, y) = 100 * (y - x^2)^2 + 3 * (1 - x)^2<a name="2"></a></h2><pre class="codeinput">alpha = 1;
+beta = 2;
+gamma = 0.5;
+
+<span class="comment">% problem 3</span>
+syms <span class="string">x</span> <span class="string">y</span>;
+dim = 2;
+f = symfun(100 * (y - x^2)^2 + 3 * (1 - x)^2, [x y]);
+
+range_nedler = 10; <span class="comment">% generate N+1 vertices in N-dimensional space &lt;= 10</span>
+epsilon_nedler = 0.05; <span class="comment">% termination condition termination condition - the average of vertex distance &lt;= epsilon</span>
+max_iter_nedler = 50000; <span class="comment">% maximum iteration</span>
+
+<span class="comment">% Nedler-Mead method</span>
+[output, time, iter] = nelderMead(f, dim, range_nedler, epsilon_nedler, max_iter_nedler, alpha, beta, gamma);
+fprintf(<span class="string">'1. Nelder and Mead - It takes %fsec to generate minimum [%f] for %d iter\n'</span>, time, output, iter);
+
+N = 10; <span class="comment">% the number of direction vector</span>
+range_powell = 10; <span class="comment">% direction vector, starting point initialized in range of [-30, 30]</span>
+epsilon_powell = 0.01; <span class="comment">% termination condition - the average of vertex distance &lt;= epsilon</span>
+max_iter_powell = 50000; <span class="comment">% maximum iteration</span>
+
+<span class="comment">% Powell's method</span>
+[output, time, iter] = powell(f, dim, N, range_powell, epsilon_powell, max_iter_powell);
+fprintf(<span class="string">'2. Powell - It takes %fsec to generate minimum [%f] for %d iter\n'</span>, time, output, iter);
+</pre><pre class="codeoutput">1. Nelder and Mead - It takes 1.111830sec to generate minimum [0.186826] for 39 iter
+2. Powell - It takes 0.294614sec to generate minimum [0.016632] for 5 iter
+</pre><img vspace="5" hspace="5" src="HW4_3_01.png" style="width:560px;height:420px;" alt=""> <img vspace="5" hspace="5" src="HW4_3_02.png" style="width:560px;height:420px;" alt=""> <p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+% 2017 Fall Numerical Optimization Homework #4
+% 2017. 10. 18
+% 20161216 HAN SANGJUN
+
+clc;
+clear;
+close all;
+
+%% Problem 3 - find minima f(x, y) = 100 * (y - x^2)^2 + 3 * (1 - x)^2
+alpha = 1;
+beta = 2;
+gamma = 0.5;
+
+% problem 3
+syms x y;
+dim = 2;
+f = symfun(100 * (y - x^2)^2 + 3 * (1 - x)^2, [x y]);
+
+range_nedler = 10; % generate N+1 vertices in N-dimensional space <= 10
+epsilon_nedler = 0.05; % termination condition termination condition - the average of vertex distance <= epsilon
+max_iter_nedler = 50000; % maximum iteration
+
+% Nedler-Mead method
+[output, time, iter] = nelderMead(f, dim, range_nedler, epsilon_nedler, max_iter_nedler, alpha, beta, gamma);
+fprintf('1. Nelder and Mead - It takes %fsec to generate minimum [%f] for %d iter\n', time, output, iter);
+
+N = 10; % the number of direction vector
+range_powell = 10; % direction vector, starting point initialized in range of [-30, 30]
+epsilon_powell = 0.01; % termination condition - the average of vertex distance <= epsilon
+max_iter_powell = 50000; % maximum iteration
+
+% Powell's method
+[output, time, iter] = powell(f, dim, N, range_powell, epsilon_powell, max_iter_powell);
+fprintf('2. Powell - It takes %fsec to generate minimum [%f] for %d iter\n', time, output, iter);
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,170 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>gradient_descent</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-31"><meta name="DC.source" content="gradient_descent.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Gradient descent</a></li><li><a href="#3">Plot result</a></li></ul></div><h2>Gradient descent<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [point, output, time, iter] = gradient_descent(f, f_gradient, point, epsilon, max_iter)
+</pre><pre class="codeinput">tic;
+plot_point = zeros(0, 2); <span class="comment">% for plot result</span>
+before = f(point(1), point(2)); <span class="comment">% initial function value</span>
+
+<span class="keyword">for</span> iter=1:max_iter
+    <span class="keyword">if</span> (iter == max_iter)
+        <span class="comment">% when reach to end of loop, evoke error</span>
+        error(<span class="string">'Steepest gradinet descent failed!'</span>);
+    <span class="keyword">end</span>;
+
+    <span class="comment">% for plot result</span>
+    plot_point(iter, :) = point;
+
+    <span class="comment">% compute gradient</span>
+    gradient = double(f_gradient(point(1), point(2)))';
+
+    <span class="comment">% inexact line search for the given search direction (-gradient)</span>
+    step_size = 5 * rand(1); <span class="comment">% step_size initialization</span>
+    step_size = inexact_search(f, point, step_size, gradient, -gradient, max_iter);
+
+    <span class="comment">% update point</span>
+    point = point - (step_size * gradient);
+
+    <span class="comment">% terminate condition</span>
+    current = f(point(1), point(2));
+    <span class="keyword">if</span>(abs(current - before) &lt;= epsilon)
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>;
+    before = current;
+<span class="keyword">end</span>;
+
+output = double(current);
+time = toc;
+</pre><h2>Plot result<a name="3"></a></h2><pre class="codeinput">figure;
+[X, Y] = meshgrid(-3:0.5:2, -3:0.5:1);
+Z = f(X, Y);
+mesh(X, Y, Z)
+alpha(0.1)
+hold <span class="string">on</span>;
+scatter3(plot_point(:, 1), plot_point(:, 2), f(plot_point(:, 1), plot_point(:, 2)), 100, <span class="string">'filled'</span>, <span class="string">'MarkerFaceColor'</span>, <span class="string">'r'</span>)
+<span class="keyword">for</span> j=1:size(plot_point, 1)-1
+    hold <span class="string">on</span>;
+    line(plot_point([j, j+1], 1), plot_point([j, j+1], 2), f(plot_point([j, j+1], 1), plot_point([j, j+1], 2)), <span class="string">'LineWidth'</span>, 3, <span class="string">'Color'</span>, <span class="string">'b'</span>)
+    view(3)
+<span class="keyword">end</span>;
+title(<span class="string">'Steepest Gradient Descent'</span>)
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Gradient descent
+function [point, output, time, iter] = gradient_descent(f, f_gradient, point, epsilon, max_iter)
+
+tic;
+plot_point = zeros(0, 2); % for plot result
+before = f(point(1), point(2)); % initial function value
+
+for iter=1:max_iter
+    if (iter == max_iter)
+        % when reach to end of loop, evoke error
+        error('Steepest gradinet descent failed!');
+    end;
+    
+    % for plot result
+    plot_point(iter, :) = point;
+    
+    % compute gradient
+    gradient = double(f_gradient(point(1), point(2)))';
+    
+    % inexact line search for the given search direction (-gradient)
+    step_size = 5 * rand(1); % step_size initialization
+    step_size = inexact_search(f, point, step_size, gradient, -gradient, max_iter);
+    
+    % update point
+    point = point - (step_size * gradient);
+    
+    % terminate condition
+    current = f(point(1), point(2));
+    if(abs(current - before) <= epsilon)
+        break;
+    end;
+    before = current;
+end;
+
+output = double(current);
+time = toc;
+
+%% Plot result
+figure;
+[X, Y] = meshgrid(-3:0.5:2, -3:0.5:1);
+Z = f(X, Y);
+mesh(X, Y, Z)
+alpha(0.1)
+hold on;
+scatter3(plot_point(:, 1), plot_point(:, 2), f(plot_point(:, 1), plot_point(:, 2)), 100, 'filled', 'MarkerFaceColor', 'r')
+for j=1:size(plot_point, 1)-1
+    hold on;
+    line(plot_point([j, j+1], 1), plot_point([j, j+1], 2), f(plot_point([j, j+1], 1), plot_point([j, j+1], 2)), 'LineWidth', 3, 'Color', 'b')
+    view(3)
+end;
+title('Steepest Gradient Descent')
+##### SOURCE END #####
+--></body></html>

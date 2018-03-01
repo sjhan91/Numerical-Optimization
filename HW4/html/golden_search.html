@@ -1,0 +1,211 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>Golden Section Search</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-17"><meta name="DC.source" content="golden_search.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h1>Golden Section Search</h1><pre class="codeinput"><span class="keyword">function</span> [a, b, time, iter] = golden_search(f, a, b, epsilon, max_iter)
+
+<span class="comment">% golden ratio tau</span>
+tau = (-1 + sqrt(5)) / 2;
+
+<span class="comment">% for plot initial point</span>
+l_init = a:0.01:b;
+plot_index = 1;
+
+<span class="comment">% generate N which satisfes the final interval withins epsilon</span>
+<span class="keyword">for</span> i=1:max_iter
+    <span class="comment">% when reach to end of loop, evoke error</span>
+    <span class="keyword">if</span> (i == max_iter)
+        error(<span class="string">'golden - generating N failed!'</span>);
+    <span class="keyword">end</span>;
+
+    <span class="comment">% terminate condition</span>
+    <span class="keyword">if</span> ((b - a) * (tau^(i - 1)) &lt;= epsilon)
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>;
+<span class="keyword">end</span>;
+
+N = i;
+
+<span class="comment">% first iteration</span>
+x1 = a + ((1 - tau) * (b - a));
+x2 = b - ((1 - tau) * (b - a));
+
+tic;
+<span class="comment">% from second iteration to last iteration</span>
+<span class="keyword">for</span> iter=1:max_iter
+    <span class="comment">% when reach to end of loop, evoke error</span>
+    <span class="keyword">if</span> (iter == max_iter)
+        error(<span class="string">'golden - optimization failed!'</span>);
+    <span class="keyword">end</span>;
+
+    <span class="comment">% for saving plot value</span>
+    <span class="keyword">if</span>(mod(N, 3) == 1)
+        plot_a(plot_index) = a;
+        plot_b(plot_index) = b;
+        plot_index = plot_index + 1;
+    <span class="keyword">end</span>;
+
+    N = N - 1;
+
+    <span class="keyword">if</span> (f(x1) == f(x2) &amp;&amp; (x1 ~= x2))
+        a = x1;
+        b = x2;
+        <span class="keyword">break</span>;
+    <span class="keyword">elseif</span> (f(x1) &gt; f(x2))
+        a = x1; <span class="comment">% new interval [a, b]</span>
+        x1 = x2; <span class="comment">% reusable</span>
+        <span class="keyword">if</span>(N == 0)
+            <span class="keyword">break</span>;
+        <span class="keyword">end</span>;
+        <span class="comment">% start new iteration N - 1</span>
+        x2 = b - ((1 - tau) * (b - a));
+    <span class="keyword">else</span>
+        b = x2; <span class="comment">% new interval [a, b]</span>
+        x2 = x1; <span class="comment">% reusable</span>
+        <span class="keyword">if</span>(N == 0)
+            <span class="keyword">break</span>;
+        <span class="keyword">end</span>;
+        <span class="comment">% start new iteration N - 1</span>
+        x1 = a + ((1 - tau) * (b - a));
+    <span class="keyword">end</span>;
+<span class="keyword">end</span>;
+
+time = toc;
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Golden Section Search
+function [a, b, time, iter] = golden_search(f, a, b, epsilon, max_iter)
+
+% golden ratio tau
+tau = (-1 + sqrt(5)) / 2;
+
+% for plot initial point
+l_init = a:0.01:b;
+plot_index = 1;
+
+% generate N which satisfes the final interval withins epsilon
+for i=1:max_iter
+    % when reach to end of loop, evoke error
+    if (i == max_iter)
+        error('golden - generating N failed!');
+    end;
+    
+    % terminate condition
+    if ((b - a) * (tau^(i - 1)) <= epsilon)
+        break;
+    end;
+end;
+
+N = i;
+
+% first iteration
+x1 = a + ((1 - tau) * (b - a));
+x2 = b - ((1 - tau) * (b - a));
+
+tic;
+% from second iteration to last iteration
+for iter=1:max_iter
+    % when reach to end of loop, evoke error
+    if (iter == max_iter)
+        error('golden - optimization failed!');
+    end;
+    
+    % for saving plot value
+    if(mod(N, 3) == 1)
+        plot_a(plot_index) = a;
+        plot_b(plot_index) = b;
+        plot_index = plot_index + 1;
+    end;
+    
+    N = N - 1;
+    
+    if (f(x1) == f(x2) && (x1 ~= x2))
+        a = x1;
+        b = x2;
+        break;
+    elseif (f(x1) > f(x2))
+        a = x1; % new interval [a, b]
+        x1 = x2; % reusable
+        if(N == 0)
+            break;
+        end;
+        % start new iteration N - 1
+        x2 = b - ((1 - tau) * (b - a));
+    else
+        b = x2; % new interval [a, b]
+        x2 = x1; % reusable
+        if(N == 0)
+            break;
+        end;
+        % start new iteration N - 1
+        x1 = a + ((1 - tau) * (b - a));
+    end;
+end;
+
+time = toc;
+##### SOURCE END #####
+--></body></html>

@@ -1,0 +1,190 @@
+
+<!DOCTYPE html
+  PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN">
+<html><head>
+      <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+   <!--
+This HTML was auto-generated from MATLAB code.
+To make changes, update the MATLAB code and republish this document.
+      --><title>newton_method</title><meta name="generator" content="MATLAB 8.6"><link rel="schema.DC" href="http://purl.org/dc/elements/1.1/"><meta name="DC.date" content="2017-10-31"><meta name="DC.source" content="newton_method.m"><style type="text/css">
+html,body,div,span,applet,object,iframe,h1,h2,h3,h4,h5,h6,p,blockquote,pre,a,abbr,acronym,address,big,cite,code,del,dfn,em,font,img,ins,kbd,q,s,samp,small,strike,strong,sub,sup,tt,var,b,u,i,center,dl,dt,dd,ol,ul,li,fieldset,form,label,legend,table,caption,tbody,tfoot,thead,tr,th,td{margin:0;padding:0;border:0;outline:0;font-size:100%;vertical-align:baseline;background:transparent}body{line-height:1}ol,ul{list-style:none}blockquote,q{quotes:none}blockquote:before,blockquote:after,q:before,q:after{content:'';content:none}:focus{outine:0}ins{text-decoration:none}del{text-decoration:line-through}table{border-collapse:collapse;border-spacing:0}
+
+html { min-height:100%; margin-bottom:1px; }
+html body { height:100%; margin:0px; font-family:Arial, Helvetica, sans-serif; font-size:10px; color:#000; line-height:140%; background:#fff none; overflow-y:scroll; }
+html body td { vertical-align:top; text-align:left; }
+
+h1 { padding:0px; margin:0px 0px 25px; font-family:Arial, Helvetica, sans-serif; font-size:1.5em; color:#d55000; line-height:100%; font-weight:normal; }
+h2 { padding:0px; margin:0px 0px 8px; font-family:Arial, Helvetica, sans-serif; font-size:1.2em; color:#000; font-weight:bold; line-height:140%; border-bottom:1px solid #d6d4d4; display:block; }
+h3 { padding:0px; margin:0px 0px 5px; font-family:Arial, Helvetica, sans-serif; font-size:1.1em; color:#000; font-weight:bold; line-height:140%; }
+
+a { color:#005fce; text-decoration:none; }
+a:hover { color:#005fce; text-decoration:underline; }
+a:visited { color:#004aa0; text-decoration:none; }
+
+p { padding:0px; margin:0px 0px 20px; }
+img { padding:0px; margin:0px 0px 20px; border:none; }
+p img, pre img, tt img, li img, h1 img, h2 img { margin-bottom:0px; } 
+
+ul { padding:0px; margin:0px 0px 20px 23px; list-style:square; }
+ul li { padding:0px; margin:0px 0px 7px 0px; }
+ul li ul { padding:5px 0px 0px; margin:0px 0px 7px 23px; }
+ul li ol li { list-style:decimal; }
+ol { padding:0px; margin:0px 0px 20px 0px; list-style:decimal; }
+ol li { padding:0px; margin:0px 0px 7px 23px; list-style-type:decimal; }
+ol li ol { padding:5px 0px 0px; margin:0px 0px 7px 0px; }
+ol li ol li { list-style-type:lower-alpha; }
+ol li ul { padding-top:7px; }
+ol li ul li { list-style:square; }
+
+.content { font-size:1.2em; line-height:140%; padding: 20px; }
+
+pre, code { font-size:12px; }
+tt { font-size: 1.2em; }
+pre { margin:0px 0px 20px; }
+pre.codeinput { padding:10px; border:1px solid #d3d3d3; background:#f7f7f7; }
+pre.codeoutput { padding:10px 11px; margin:0px 0px 20px; color:#4c4c4c; }
+pre.error { color:red; }
+
+@media print { pre.codeinput, pre.codeoutput { word-wrap:break-word; width:100%; } }
+
+span.keyword { color:#0000FF }
+span.comment { color:#228B22 }
+span.string { color:#A020F0 }
+span.untermstring { color:#B20000 }
+span.syscmd { color:#B28C00 }
+
+.footer { width:auto; padding:10px 0px; margin:25px 0px 0px; border-top:1px dotted #878787; font-size:0.8em; line-height:140%; font-style:italic; color:#878787; text-align:left; float:none; }
+.footer p { margin:0px; }
+.footer a { color:#878787; }
+.footer a:hover { color:#878787; text-decoration:underline; }
+.footer a:visited { color:#878787; }
+
+table th { padding:7px 5px; text-align:left; vertical-align:middle; border: 1px solid #d6d4d4; font-weight:bold; }
+table td { padding:7px 5px; text-align:left; vertical-align:top; border:1px solid #d6d4d4; }
+
+
+
+
+
+  </style></head><body><div class="content"><h2>Contents</h2><div><ul><li><a href="#1">Newton's method</a></li><li><a href="#3">Plot result</a></li></ul></div><h2>Newton's method<a name="1"></a></h2><pre class="codeinput"><span class="keyword">function</span> [point, output, time, iter] = newton_method(f, f_gradient, f_hessian, point, epsilon, max_iter)
+</pre><pre class="codeinput">tic;
+plot_point = zeros(0, 2); <span class="comment">% for plot result</span>
+before = f(point(1), point(2)); <span class="comment">% initial function value</span>
+
+<span class="keyword">for</span> iter=1:max_iter
+    <span class="keyword">if</span> (iter == max_iter)
+        <span class="comment">% when reach to end of loop, evoke error</span>
+        error(<span class="string">'Newton''s method failed!'</span>);
+    <span class="keyword">end</span>;
+
+    <span class="comment">% for plot result</span>
+    plot_point(iter, :) = point;
+
+    hessian_mat = double(f_hessian(point(1), point(2)));
+    gradient_mat = double(f_gradient(point(1), point(2)))';
+
+    <span class="comment">% check Hessian matrix is positive definite</span>
+    [col, eig_diagnol] = eig(double(hessian_mat)); <span class="comment">% compute eigenvalue</span>
+
+    <span class="comment">% if all eigenvalue &gt; 0</span>
+    <span class="keyword">if</span> (isempty(find(diag(eig_diagnol) &lt;= 0)) == 1)
+        hessian_gradient = (inv(hessian_mat) * gradient_mat')';
+        point = point - hessian_gradient; <span class="comment">% Newton's method update</span>
+    <span class="keyword">else</span>
+        <span class="comment">% inexact line search for the given search direction (-gradient)</span>
+        step_size = 5 * rand(1); <span class="comment">% step_size initialization</span>
+        step_size = inexact_search(f, point, step_size, gradient_mat, -gradient_mat, max_iter);
+
+        hessian_mat = eye(size(hessian_mat, 1), size(hessian_mat, 2));
+        hessian_gradient = (inv(hessian_mat) * gradient_mat')';
+        point = point - (step_size * hessian_gradient); <span class="comment">% Gradient descent update</span>
+    <span class="keyword">end</span>;
+
+    <span class="comment">% terminate condition</span>
+    current = f(point(1), point(2));
+    <span class="keyword">if</span>(abs(current - before) &lt;= epsilon)
+        <span class="keyword">break</span>;
+    <span class="keyword">end</span>;
+    before = current;
+<span class="keyword">end</span>;
+
+output = double(current);
+time = toc;
+</pre><h2>Plot result<a name="3"></a></h2><pre class="codeinput">figure;
+[X, Y] = meshgrid(-3:0.5:2, -3:0.5:1);
+Z = f(X, Y);
+mesh(X, Y, Z)
+alpha(0.1)
+hold <span class="string">on</span>;
+scatter3(plot_point(:, 1), plot_point(:, 2), f(plot_point(:, 1), plot_point(:, 2)), 100, <span class="string">'filled'</span>, <span class="string">'MarkerFaceColor'</span>, <span class="string">'r'</span>)
+<span class="keyword">for</span> j=1:size(plot_point, 1)-1
+    hold <span class="string">on</span>;
+    line(plot_point([j, j+1], 1), plot_point([j, j+1], 2), f(plot_point([j, j+1], 1), plot_point([j, j+1], 2)), <span class="string">'LineWidth'</span>, 3, <span class="string">'Color'</span>, <span class="string">'b'</span>)
+    view(3)
+<span class="keyword">end</span>;
+title(<span class="string">'Newton''s Method'</span>)
+</pre><p class="footer"><br><a href="http://www.mathworks.com/products/matlab/">Published with MATLAB&reg; R2015b</a><br></p></div><!--
+##### SOURCE BEGIN #####
+%% Newton's method
+function [point, output, time, iter] = newton_method(f, f_gradient, f_hessian, point, epsilon, max_iter)
+
+tic;
+plot_point = zeros(0, 2); % for plot result
+before = f(point(1), point(2)); % initial function value
+
+for iter=1:max_iter
+    if (iter == max_iter)
+        % when reach to end of loop, evoke error
+        error('Newton''s method failed!');
+    end;
+    
+    % for plot result
+    plot_point(iter, :) = point;
+    
+    hessian_mat = double(f_hessian(point(1), point(2)));
+    gradient_mat = double(f_gradient(point(1), point(2)))';
+    
+    % check Hessian matrix is positive definite
+    [col, eig_diagnol] = eig(double(hessian_mat)); % compute eigenvalue
+
+    % if all eigenvalue > 0 
+    if (isempty(find(diag(eig_diagnol) <= 0)) == 1)
+        hessian_gradient = (inv(hessian_mat) * gradient_mat')';
+        point = point - hessian_gradient; % Newton's method update
+    else
+        % inexact line search for the given search direction (-gradient)
+        step_size = 5 * rand(1); % step_size initialization
+        step_size = inexact_search(f, point, step_size, gradient_mat, -gradient_mat, max_iter);
+        
+        hessian_mat = eye(size(hessian_mat, 1), size(hessian_mat, 2));
+        hessian_gradient = (inv(hessian_mat) * gradient_mat')';
+        point = point - (step_size * hessian_gradient); % Gradient descent update
+    end;
+    
+    % terminate condition
+    current = f(point(1), point(2));
+    if(abs(current - before) <= epsilon)
+        break;
+    end;
+    before = current;
+end;
+
+output = double(current);
+time = toc;
+
+%% Plot result
+figure;
+[X, Y] = meshgrid(-3:0.5:2, -3:0.5:1);
+Z = f(X, Y);
+mesh(X, Y, Z)
+alpha(0.1)
+hold on;
+scatter3(plot_point(:, 1), plot_point(:, 2), f(plot_point(:, 1), plot_point(:, 2)), 100, 'filled', 'MarkerFaceColor', 'r')
+for j=1:size(plot_point, 1)-1
+    hold on;
+    line(plot_point([j, j+1], 1), plot_point([j, j+1], 2), f(plot_point([j, j+1], 1), plot_point([j, j+1], 2)), 'LineWidth', 3, 'Color', 'b')
+    view(3)
+end;
+title('Newton''s Method')
+##### SOURCE END #####
+--></body></html>
