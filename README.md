@@ -1,7 +1,7 @@
 # Numerical-Optimization
 Homework of Numerical Optimization at Gwangju Institute of Science and Technology<br />
 
-* MATLAB code<br />
+* MATLAB code<br /><br />
 Homework2 - Bisection, Newton, Secant, Regula Falsi Method<br />
 Homework3 - Fibonacci, Golden Section Search<br />
 Homework4 - Nelder Mead, Powell's Method<br />
